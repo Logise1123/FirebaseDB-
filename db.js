@@ -4,7 +4,7 @@
 
     class FirebaseDB {
         constructor() {
-            this.api = "https://guessthepin-2fe64-default-rtdb.europe-west1.firebasedatabase.app/pin"; // URL de la base de datos
+            this.api = "https://guessthepin-2fe64-default-rtdb.europe-west1.firebasedatabase.app/pin";
         }
 
         getInfo() {
@@ -18,8 +18,14 @@
                         blockType: Scratch.BlockType.COMMAND,
                         text: "set [KEY] to [VALUE]",
                         arguments: {
-                            KEY: { type: Scratch.ArgumentType.STRING, defaultValue: "key" },
-                            VALUE: { type: Scratch.ArgumentType.STRING, defaultValue: "value" }
+                            KEY: {
+                                type: Scratch.ArgumentType.STRING,
+                                defaultValue: "clave"
+                            },
+                            VALUE: {
+                                type: Scratch.ArgumentType.STRING,
+                                defaultValue: "valor"
+                            }
                         }
                     },
                     {
@@ -27,34 +33,45 @@
                         blockType: Scratch.BlockType.REPORTER,
                         text: "get [KEY]",
                         arguments: {
-                            KEY: { type: Scratch.ArgumentType.STRING, defaultValue: "key" }
+                            KEY: {
+                                type: Scratch.ArgumentType.STRING,
+                                defaultValue: "clave"
+                            }
                         }
                     }
                 ]
             };
         }
 
-        // Bloque 'set x to y' - Guardar valor
-        setKey({ KEY, VALUE }) {
-            fetch(`${this.api}/${encodeURIComponent(KEY)}.json`, {
+        async setKey(args) {
+            const key = args.KEY;
+            const value = args.VALUE;
+
+            const delay = 500 + Math.random() * 500;
+            await new Promise(resolve => setTimeout(resolve, delay));
+
+            if (value.length > 8000) {
+                console.warn("Valor demasiado largo, no se guardará.");
+                return;
+            }
+
+            await fetch(`${this.api}/${encodeURIComponent(key)}.json`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(VALUE)
+                body: JSON.stringify(value)
             });
         }
 
-        // Bloque 'get x' - Obtener valor
-        async getKey({ KEY }) {
-            try {
-                const response = await fetch(`${this.api}/${encodeURIComponent(KEY)}.json`);
-                const data = await response.json();
-                return data || ""; // Devuelve el valor de la clave o un string vacío si no existe
-            } catch {
-                return "";
-            }
+        async getKey(args) {
+            const key = args.KEY;
+
+            const delay = 500 + Math.random() * 500;
+            await new Promise(resolve => setTimeout(resolve, delay));
+
+            const res = await fetch(`${this.api}/${encodeURIComponent(key)}.json`);
+            const data = await res.json();
+            return data ?? "";
         }
     }
 
-    // Registro de la extensión en Scratch (o Penguinmod)
     Scratch.extensions.register(new FirebaseDB());
 })(Scratch);
