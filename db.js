@@ -15,6 +15,7 @@
                 color1: "#ff6600",
                 menuIconURI: icon,
                 blocks: [
+                    {blockType: Scratch.BlockType.LABEL, text: "Made by @logise on Discord"},
                     {
                         opcode: "setKey",
                         blockType: Scratch.BlockType.COMMAND,
@@ -32,6 +33,7 @@
                             KEY: { type: Scratch.ArgumentType.STRING, defaultValue: "key" }
                         }
                     },
+                    {blockType: Scratch.BlockType.LABEL, text: "Password Blocks:"},
                     {
                         opcode: "setKeyWithPassword",
                         blockType: Scratch.BlockType.COMMAND,
