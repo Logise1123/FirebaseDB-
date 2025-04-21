@@ -62,6 +62,7 @@
                             KEY: { type: Scratch.ArgumentType.STRING, defaultValue: "key" }
                         }
                     },
+                    {blockType: Scratch.BlockType.LABEL, text: "Viewable keys with password:"},
                     {
                         opcode: "setPublicKeyWithPassword",
                         blockType: Scratch.BlockType.COMMAND,
@@ -72,6 +73,7 @@
                             PASSWORD: { type: Scratch.ArgumentType.STRING, defaultValue: "password" }
                         }
                     }
+                    {blockType: Scratch.BlockType.LABEL, text: "(use the first get block)"},
                 ]
             };
         }
