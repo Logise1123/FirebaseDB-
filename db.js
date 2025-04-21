@@ -12,7 +12,7 @@
             return {
                 id: "FirebaseDB",
                 name: "Firebase DB",
-                color1: "#ff6600",
+                color1: "#fea631",
                 menuIconURI: icon,
                 blocks: [
                     {blockType: Scratch.BlockType.LABEL, text: "Made by @logise on Discord"},
