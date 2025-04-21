@@ -1,3 +1,10 @@
+// Name: FirebaseDB
+// ID: firebasedb
+// Description: Extension for online, password-protected Firebase database storage.
+// By: Logise <https://scratch.mit.edu/users/Logise/>
+// Original: FirebaseDB
+// License: MPL-2.0
+
 (function(Scratch) {
     'use strict';
     if (!Scratch.extensions.unsandboxed) throw new Error("FirebaseDB must run unsandboxed");
