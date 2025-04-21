@@ -25,7 +25,6 @@
                         arguments: {
                             URL: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: DEFAULT_URL
                             }
                         }
                     },
