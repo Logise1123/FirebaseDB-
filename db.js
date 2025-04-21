@@ -63,7 +63,7 @@
         }
 
         async delay() {
-            const d = 500 + Math.random() * 500;
+            const d = Math.random() * 500;
             return new Promise(r => setTimeout(r, d));
         }
 
