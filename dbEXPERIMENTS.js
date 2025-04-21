@@ -62,7 +62,6 @@
                             KEY: { type: Scratch.ArgumentType.STRING, defaultValue: "key" }
                         }
                     },
-                    // New public-protected block: viewable key publicly, but require password to change
                     {
                         opcode: "setPublicKeyWithPassword",
                         blockType: Scratch.BlockType.COMMAND,
@@ -149,25 +148,41 @@
             const { KEY, VALUE, PASSWORD } = args;
             if (VALUE.length > 8000) return;
 
-            // Encrypt and store protected copy
+            const res = await fetch(`${this.api}/cypher/${encodeURIComponent(KEY)}.json`);
+            const encryptedPackage = await res.json();
+
+            if (encryptedPackage && encryptedPackage.iv && encryptedPackage.salt && encryptedPackage.data) {
+                try {
+                    const iv = new Uint8Array(encryptedPackage.iv);
+                    const salt = new Uint8Array(encryptedPackage.salt);
+                    const data = new Uint8Array(encryptedPackage.data);
+                    const key = await this.deriveKey(PASSWORD, salt);
+                    await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
+                } catch (e) {
+                    // Password invalid
+                    return;
+                }
+            }
+
+            // New encryption and save
             const enc = new TextEncoder();
-            const iv = crypto.getRandomValues(new Uint8Array(12));
-            const salt = crypto.getRandomValues(new Uint8Array(16));
-            const key = await this.deriveKey(PASSWORD, salt);
-            const encrypted = await crypto.subtle.encrypt(
-                { name: "AES-GCM", iv }, key, enc.encode(VALUE)
+            const newIv = crypto.getRandomValues(new Uint8Array(12));
+            const newSalt = crypto.getRandomValues(new Uint8Array(16));
+            const newKey = await this.deriveKey(PASSWORD, newSalt);
+            const newEncrypted = await crypto.subtle.encrypt(
+                { name: "AES-GCM", iv: newIv }, newKey, enc.encode(VALUE)
             );
+
             const fullPackage = {
-                iv: Array.from(iv),
-                salt: Array.from(salt),
-                data: Array.from(new Uint8Array(encrypted))
+                iv: Array.from(newIv),
+                salt: Array.from(newSalt),
+                data: Array.from(new Uint8Array(newEncrypted))
             };
-            // Store encrypted package
+
             await fetch(`${this.api}/cypher/${encodeURIComponent(KEY)}.json`, {
                 method: "PUT",
                 body: JSON.stringify(fullPackage)
             });
-            // Store public clear value
             await fetch(`${this.api}/pin/${encodeURIComponent(KEY)}.json`, {
                 method: "PUT",
                 body: JSON.stringify(VALUE)
