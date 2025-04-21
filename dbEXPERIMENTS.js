@@ -73,7 +73,7 @@
                             PASSWORD: { type: Scratch.ArgumentType.STRING, defaultValue: "password" }
                         }
                     }
-                    {blockType: Scratch.BlockType.LABEL, text: "(use the first get block)"},
+                    {blockType: Scratch.BlockType.LABEL, text: "(use the first get block)"}
                 ]
             };
         }
