@@ -20,11 +20,11 @@
                         arguments: {
                             KEY: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: "clave"
+                                defaultValue: "key"
                             },
                             VALUE: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: "valor"
+                                defaultValue: "value"
                             }
                         }
                     },
@@ -35,7 +35,7 @@
                         arguments: {
                             KEY: {
                                 type: Scratch.ArgumentType.STRING,
-                                defaultValue: "clave"
+                                defaultValue: "key"
                             }
                         }
                     }
@@ -51,7 +51,6 @@
             await new Promise(resolve => setTimeout(resolve, delay));
 
             if (value.length > 8000) {
-                console.warn("Valor demasiado largo, no se guardará.");
                 return;
             }
 
