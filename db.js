@@ -16,6 +16,7 @@
                 menuIconURI: icon,
                 blocks: [
                     {blockType: Scratch.BlockType.LABEL, text: "Made by @logise on Discord"},
+                    {blockType: Scratch.BlockType.LABEL, text: "Thanks to @chipoverhere for suggestions"},
                     {
                         opcode: "setKey",
                         blockType: Scratch.BlockType.COMMAND,
