@@ -124,7 +124,7 @@
 
         // Utility delay
         async delay() {
-            const d = Math.random() * 500;
+            const d = 1;
             return new Promise(r => setTimeout(r, d));
         }
 
