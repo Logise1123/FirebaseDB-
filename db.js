@@ -41,6 +41,18 @@
                             }
                         }
                     },
+                    // NEW: Get current database URL
+                    {
+                        opcode: "getDatabaseURL",
+                        blockType: Scratch.BlockType.REPORTER,
+                        text: "database url"
+                    },
+                    // NEW: Check connection status
+                    {
+                        opcode: "isConnected",
+                        blockType: Scratch.BlockType.BOOLEAN,
+                        text: "connected to database?"
+                    },
                     // Existing blocks
                     {blockType: Scratch.BlockType.LABEL, text: "Made by @logise on Discord"},
                     {blockType: Scratch.BlockType.LABEL, text: "Thanks to @chipoverhere for suggestions"},
@@ -61,14 +73,6 @@
                             KEY: { type: Scratch.ArgumentType.STRING, defaultValue: "key" }
                         }
                     },
-                    {
-                        opcode: "deleteKey",
-                        blockType: Scratch.BlockType.COMMAND,
-                        text: "delete key [KEY]",
-                        arguments: {
-                            KEY: { type: Scratch.ArgumentType.STRING, defaultValue: "key" }
-                        }
-                    },
                     {blockType: Scratch.BlockType.LABEL, text: "Password Blocks:"},
                     {
                         opcode: "setKeyWithPassword",
@@ -84,15 +88,6 @@
                         opcode: "getKeyWithPassword",
                         blockType: Scratch.BlockType.REPORTER,
                         text: "get key [KEY] with password [PASSWORD]",
-                        arguments: {
-                            KEY: { type: Scratch.ArgumentType.STRING, defaultValue: "key" },
-                            PASSWORD: { type: Scratch.ArgumentType.STRING, defaultValue: "password" }
-                        }
-                    },
-                    {
-                        opcode: "deleteKeyWithPassword",
-                        blockType: Scratch.BlockType.COMMAND,
-                        text: "delete key [KEY] with password [PASSWORD]",
                         arguments: {
                             KEY: { type: Scratch.ArgumentType.STRING, defaultValue: "key" },
                             PASSWORD: { type: Scratch.ArgumentType.STRING, defaultValue: "password" }
@@ -139,6 +134,22 @@
             }
         }
 
+        // NEW: Get current database URL
+        getDatabaseURL() {
+            return this.api;
+        }
+
+        // NEW: Check if connected (alive request)
+        async isConnected() {
+            try {
+                // Hacemos una petición ligera (shallow) al endpoint .json para ver si responde
+                const res = await fetch(`${this.api}/.json?shallow=true`);
+                return res.ok;
+            } catch (e) {
+                return false;
+            }
+        }
+
         // Utility delay
         async delay() {
             const d = 1;
@@ -163,15 +174,6 @@
             const res = await fetch(`${this.api}/pin/${encodeURIComponent(KEY)}.json`);
             const data = await res.json();
             return data ?? "";
-        }
-
-        // Delete key without password
-        async deleteKey(args) {
-            await this.delay();
-            const { KEY } = args;
-            await fetch(`${this.api}/pin/${encodeURIComponent(KEY)}.json`, {
-                method: "DELETE"
-            });
         }
 
         // Derive encryption key from password
@@ -249,37 +251,6 @@
                 return new TextDecoder().decode(decrypted);
             } catch (e) {
                 return "";
-            }
-        }
-
-        // Delete key with password (safely removes from both locations if password is correct)
-        async deleteKeyWithPassword(args) {
-            await this.delay();
-            const { KEY, PASSWORD } = args;
-            const res = await fetch(`${this.api}/cypher/${encodeURIComponent(KEY)}.json`);
-            const encryptedPackage = await res.json();
-            
-            // If it doesn't exist, nothing to delete
-            if (!encryptedPackage || !encryptedPackage.data || !encryptedPackage.iv || !encryptedPackage.salt) return;
-
-            try {
-                // Verify password by attempting decryption
-                const iv = new Uint8Array(encryptedPackage.iv);
-                const salt = new Uint8Array(encryptedPackage.salt);
-                const data = new Uint8Array(encryptedPackage.data);
-                const key = await this.deriveKey(PASSWORD, salt);
-                await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
-                
-                // If we are here, password is correct. Delete the encrypted entry.
-                await fetch(`${this.api}/cypher/${encodeURIComponent(KEY)}.json`, { method: "DELETE" });
-                
-                // Also attempt to delete the public readable entry (in case it was set via setPublicKeyWithPassword)
-                // If it wasn't set there, this DELETE is harmless/idempotent.
-                await fetch(`${this.api}/pin/${encodeURIComponent(KEY)}.json`, { method: "DELETE" });
-
-            } catch (e) {
-                // Wrong password or error
-                return;
             }
         }
 
